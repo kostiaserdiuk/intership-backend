@@ -1,0 +1,8 @@
+/app/__pycache__
+.env
+.gitignore
+.git
+.env.sample
+README.md
+/venv
+Dockerfile
