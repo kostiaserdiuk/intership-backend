@@ -2,8 +2,9 @@ version: '3.8'
 
 services:
   web:
-    # build: .
+    build: .
     image: intership-be
+    restart: always
     ports:
       - 8000:8000
     depends_on:
@@ -11,6 +12,8 @@ services:
       - redis
     env_file:
       - ./.env
+    volumes:
+      - E:/BE-Intership/intership-backend/app:/intership-backend/app
   postgres:
       image: postgres
       restart: always

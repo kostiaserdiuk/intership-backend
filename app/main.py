@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from .db.db import async_session, AsyncSession, r
+from .schemas.shemas import User, UserDetailResponse, UsersListResponse, SignInRequestModel, SignUpRequestModel, UserUpdateRequestModel
 
 app = FastAPI()
 
@@ -10,12 +11,12 @@ async def get_db_session() -> AsyncSession:
 
 @app.on_event("shutdown")
 async def close_db_session():
-    r.close()
+    await r.close()
 
 
 
 @app.get("/")
-def health_check():
+async def health_check():
     return {
         "status_code": 200,
         "detail": "ok",
