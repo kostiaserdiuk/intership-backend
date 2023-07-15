@@ -1,10 +1,16 @@
 from typing import List
 from pydantic import BaseModel
+from pydantic import EmailStr
 
 class User(BaseModel):
     id: int
     username: str
     email: str
+    # class Config:
+    #     orm_mode = True
+    #     allow_population_by_field_name = True
+    #     arbitrary_types_allowed = True
+
 
 class SignInRequestModel(BaseModel):
     username: str
@@ -12,12 +18,12 @@ class SignInRequestModel(BaseModel):
 
 class SignUpRequestModel(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str
 
 class UserUpdateRequestModel(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str
 
 class UsersListResponse(BaseModel):

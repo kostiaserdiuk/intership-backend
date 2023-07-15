@@ -6,3 +6,5 @@
 /app/schemas/__pycache__/
 /app/db/__pycache__/
 /migrations/__pycache__/
+/migrations/versions/__pycache__/
+/utils/__pycache__/
