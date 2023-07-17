@@ -21,6 +21,7 @@ services:
         - 5432:5432
       env_file:
       - ./.env
+      container_name: postgres
   redis:
       image: redis/redis-stack
       restart: always
@@ -28,3 +29,4 @@ services:
         - 6379:6379
       env_file:
       - ./.env
+      container_name: redis

@@ -15,10 +15,9 @@ postgres_host = getenv("POSTGRES_HOST")
 postgres_port = getenv("POSTGRES_PORT")
 
 
-DATABASE_URL = f"postgresql+asyncpg://{user}:{password}@{postgres_host}:{postgres_port}/{db}"
-DATABASE_URL_DOCKER = f"postgresql+asyncpg://{user}:{password}@intership-backend-postgres-1/{db}"
+DATABASE_URL = f"postgresql+asyncpg://{user}:{password}@postgres:{postgres_port}/{db}"
 
-engine = create_async_engine(DATABASE_URL_DOCKER, future=True, echo=True)
+engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 async_session = sessionmaker(engine, expire_on_commit=False, autoflush=False, class_=AsyncSession)
 Base = declarative_base()
 
