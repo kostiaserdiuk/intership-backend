@@ -9,3 +9,4 @@
 /migrations/versions/__pycache__/
 /app/utils/__pycache__/
 /app/services/__pycache__/
+/app/routers/__pycache__/

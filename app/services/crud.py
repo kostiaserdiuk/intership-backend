@@ -1,7 +1,8 @@
 from app.db.db import AsyncSession
 from app.models.models import User as UserModel
-from app.schemas.schemas import SignUpRequestModel, SignInRequestModel, UserUpdateRequestModel, UsersListResponse, UserDetailResponse
+from app.schemas.schemas import SignUpRequestModel,  UserUpdateRequestModel
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from app.utils.hash import get_password_hash
 
@@ -23,8 +24,8 @@ async def create_user(user: SignUpRequestModel, session: AsyncSession):
         await session.commit()
         await session.refresh(new_user)
         return {"user": new_user}
-    except Exception:
-        raise HTTPException(status_code=400, detail="User already exists")
+    except IntegrityError:
+        raise HTTPException(status_code=409, detail="User already exists")
     
 async def update_user(user_id: int, user_up: UserUpdateRequestModel, session: AsyncSession):
     try:
@@ -39,10 +40,9 @@ async def update_user(user_id: int, user_up: UserUpdateRequestModel, session: As
         await session.refresh(user)
         return {"user": user}
     except Exception:
-        raise HTTPException(status_code=400)
+        raise HTTPException(status_code=400, detail="Bad request")
     
 async def delete_user(user_id: int, session: AsyncSession):
-    try:
         result = await session.execute(select(UserModel).filter(UserModel.id == user_id))
         user = result.scalars().first()
         if not user:
@@ -50,6 +50,4 @@ async def delete_user(user_id: int, session: AsyncSession):
         await session.delete(user)
         await session.commit()
         await session.close()
-        return 'User was deleted'
-    except Exception:
-        raise HTTPException(status_code=400)
+        return {"detail" : "User was deleted"}
