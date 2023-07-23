@@ -32,6 +32,10 @@ class UsersListResponse(BaseModel):
 class UserDetailResponse(BaseModel):
     user: User
 
+class UserDelatedResponse(BaseModel):
+    detail: str
+    user: User
+
 class Token(BaseModel):
     access_token: str
     token_type: str
