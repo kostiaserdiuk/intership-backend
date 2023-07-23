@@ -4,7 +4,7 @@ from pydantic import EmailStr
 
 class User(BaseModel):
     id: int
-    username: str
+    username: str | None
     email: str
     # class Config:
     #     orm_mode = True
@@ -31,3 +31,11 @@ class UsersListResponse(BaseModel):
 
 class UserDetailResponse(BaseModel):
     user: User
+
+class UserDelatedResponse(BaseModel):
+    detail: str
+    user: User
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
