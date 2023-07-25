@@ -47,7 +47,7 @@ async def get_current_user(session: AsyncSession=Depends(get_db_session), token:
         result = await session.execute(select(UserModel).filter(UserModel.username == payload.get("username")))
         user = result.scalars().first()
         if not user:
-            return {"status": "error", "detail": "User not found"}
+            raise HTTPException(status_code=404, detail="User not found")
         return {"status": "success", "detail": User(id=user.id, username=user.username, email=user.email)}
     except jwt.ExpiredSignatureError:
         return {"status": "error", "detail": "Token has expired"}

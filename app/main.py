@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.utils.dependencies import get_db_session, close_db_session
 
-from .routers import users, auth
+from .routers import users, auth, companies
 
 app = FastAPI()
 
@@ -25,3 +25,4 @@ async def health_check():
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(companies.router)
