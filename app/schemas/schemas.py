@@ -39,3 +39,11 @@ class UserDelatedResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class AuthResponse(BaseModel):
+    status: str
+    detail: User | str
+
+class UserPersonalEdit(BaseModel):
+    username: str
+    password: str

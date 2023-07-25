@@ -1,6 +1,6 @@
 from app.db.db import AsyncSession
 from app.models.models import User as UserModel
-from app.schemas.schemas import SignUpRequestModel,  UserUpdateRequestModel, UserDetailResponse
+from app.schemas.schemas import SignUpRequestModel,  UserUpdateRequestModel, UserPersonalEdit
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
@@ -31,13 +31,13 @@ class UserService:
         except IntegrityError:
             raise HTTPException(status_code=409, detail="User already exists")
     
-    async def update_user(self, user_id: int, user_up: UserUpdateRequestModel) -> dict:
+    async def update_user(self, user_id: int, user_up: UserPersonalEdit) -> dict:
             result = await self.session.execute(select(UserModel).filter(UserModel.id == user_id))
             user = result.scalars().first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
             user.username = user_up.username
-            user.email = user_up.email
+            user.email = user.email
             user.password = get_password_hash(user_up.password)
             await self.session.commit()
             await self.session.refresh(user)
