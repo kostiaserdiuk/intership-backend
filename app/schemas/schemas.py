@@ -47,3 +47,23 @@ class AuthResponse(BaseModel):
 class UserPersonalEdit(BaseModel):
     username: str
     password: str
+
+class Company(BaseModel):
+    id: int
+    name: str
+    description: str
+    owner_id: int
+
+class CompanyCreateRequestModel(BaseModel):
+    name: str
+    description: str
+
+class CompanyCreateResponseModel(BaseModel):
+    company: Company
+
+class CompanyUpdateResponseModel(BaseModel):
+    name: str
+    description: str
+
+class CompanyListResponse(BaseModel):
+    companies: List[Company]
