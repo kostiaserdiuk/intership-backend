@@ -22,7 +22,7 @@ oauth_schema = HTTPBearer()
 async def create_token(username: str):
     payload = {
         "username": username,
-        "exp": datetime.utcnow() + timedelta(minutes=10)
+        "exp": datetime.utcnow() + timedelta(minutes=30)
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return {"access_token": token, "token_type": "Bearer"}
@@ -50,9 +50,9 @@ async def get_current_user(session: AsyncSession=Depends(get_db_session), token:
             raise HTTPException(status_code=404, detail="User not found")
         return {"status": "success", "detail": User(id=user.id, username=user.username, email=user.email)}
     except jwt.ExpiredSignatureError:
-        return {"status": "error", "detail": "Token has expired"}
+        raise HTTPException(status_code=401, detail="Token expired")
     except jwt.DecodeError:
-        return {"status": "error", "detail": "Could not validate credentials"}
+        raise HTTPException(status_code=401, detail="Token invalid")
     except jwt.InvalidAlgorithmError:
         payload = VerifyToken(token.credentials).verify()
         result = await session.execute(select(UserModel).filter(UserModel.email == payload.get("user-email")))
