@@ -88,6 +88,18 @@ async def get_company_requests(company_id: int, session: AsyncSession = Depends(
 async def get_company_invites(company_id: int, session: AsyncSession = Depends(get_db_session), current_user: dict = Depends(get_current_user)):
     return await CompanyActions(session).invited(company_id=company_id, current_user=current_user.get('detail').id)
 
+@router.post("/assign/admin/{company_id}/{user_id}")
+async def assign_admin(company_id: int, user_id: int, session: AsyncSession = Depends(get_db_session), current_user: dict = Depends(get_current_user)):
+    return await CompanyActions(session).assign_admin(company_id=company_id, user_id=user_id, current_user=current_user.get('detail').id)
+
+@router.post("/unassign/admin/{company_id}/{user_id}")
+async def unassign_admin(company_id: int, user_id: int, session: AsyncSession = Depends(get_db_session), current_user: dict = Depends(get_current_user)):
+    return await CompanyActions(session).unassign_admin(company_id=company_id, user_id=user_id, current_user=current_user.get('detail').id)
+
+@router.get("/company/admins/{company_id}")
+async def get_admins(company_id: int, session: AsyncSession = Depends(get_db_session), current_user: dict = Depends(get_current_user)):
+    return await CompanyActions(session).get_admins(company_id=company_id, current_user=current_user.get('detail').id)
+
 @router.get("/get/{company_id}", response_model=Company)
 async def get_company(company_id: int, session: AsyncSession = Depends(get_db_session)):
     return await CompanyService(session).get_company(company_id=company_id)
