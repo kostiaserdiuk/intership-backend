@@ -1,6 +1,7 @@
 from app.db.db import AsyncSession
 from app.models.models import User as UserModel
 from app.models.models import Company as CompanyModel
+from app.models.models import CompanyAction as CompanyActionModel
 from app.schemas.schemas import SignUpRequestModel, UserPersonalEdit, CompanyCreateRequestModel, Company, CompanyListResponse
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
