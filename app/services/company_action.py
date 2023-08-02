@@ -143,6 +143,57 @@ class CompanyActions:
         if not employees:
             return {"status": "success", "detail": "No employees"}
         return {"status": "success", "employees": employees}
+    
+    async def assign_admin(self, company_id: int, user_id: int, current_user: int):
+        result = await self.session.execute(select(Company).filter(Company.id == company_id))
+        company = result.scalars().first()
+        if not company:
+            raise HTTPException(status_code=404, detail="Company not found")
+        if company.owner_id != current_user:
+            raise HTTPException(status_code=403, detail="You are not the owner of this company")
+        try:
+            result = await self.session.execute(select(Employees).filter(Employees.company_id == company_id, Employees.user_id == user_id))
+            employee = result.scalars().first()
+            if employee is None:
+                return {"status": "error", "detail": "User is not an employee"}
+            employee.is_admin = True
+            await self.session.commit()
+            await self.session.close()
+            return {"status": "success", "detail": "User assigned as admin"}
+        except IntegrityError:
+            return {"status": "error", "detail": "User already admin"}
+    
+    async def unassign_admin(self, company_id: int, user_id: int, current_user: int):
+        result = await self.session.execute(select(Company).filter(Company.id == company_id))
+        company = result.scalars().first()
+        if not company:
+            raise HTTPException(status_code=404, detail="Company not found")
+        if company.owner_id != current_user:
+            raise HTTPException(status_code=403, detail="You are not the owner of this company")
+        try:
+            result = await self.session.execute(select(Employees).filter(Employees.company_id == company_id, Employees.user_id == user_id))
+            employee = result.scalars().first()
+            if employee is None:
+                return {"status": "error", "detail": "User is not an employee"}
+            employee.is_admin = False
+            await self.session.commit()
+            await self.session.close()
+            return {"status": "success", "detail": "User unassigned as admin"}
+        except IntegrityError:
+            return {"status": "error", "detail": "User already not admin"}
+    
+    async def get_admins(self, company_id: int, current_user: int):
+        result = await self.session.execute(select(Company).filter(Company.id == company_id))
+        company = result.scalars().first()
+        if not company:
+            raise HTTPException(status_code=404, detail="Company not found")
+        if company.owner_id != current_user:
+            raise HTTPException(status_code=403, detail="You are not the owner of this company")
+        result = await self.session.execute(select(Employees).filter(Employees.company_id == company_id, Employees.is_admin == True))
+        admins =  result.scalars().all()
+        if not admins:
+            return {"status": "success", "detail": "No admins"}
+        return {"status": "success", "admins": admins}
             
 class UserActions:
     def __init__(self, session: AsyncSession):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from app.db.db import Base
 
@@ -49,7 +49,8 @@ class UserAction(Base):
 class Employees(Base):
     __tablename__ = 'employees'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
     company_id = Column(Integer, ForeignKey('companies.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    is_admin = Column(Boolean, default=False)
     user = relationship("User", back_populates="employees")
     company = relationship("Company", back_populates="employees")
