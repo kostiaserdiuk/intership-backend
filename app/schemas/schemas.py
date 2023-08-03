@@ -1,6 +1,7 @@
 from typing import List
 from pydantic import BaseModel
 from pydantic import EmailStr
+from pydantic import field_validator
 
 class User(BaseModel):
     id: int
@@ -67,3 +68,26 @@ class CompanyUpdateResponseModel(BaseModel):
 
 class CompanyListResponse(BaseModel):
     companies: List[Company]
+
+class Question(BaseModel):
+    question: str
+    answers: List[str]
+    correct_answer: str
+
+class Quiz(BaseModel):
+    name: str
+    description: str
+    frequency: int
+    questions: List[Question]
+
+    @field_validator('questions')
+    def check_questions(cls, v):
+        if len(v) < 2:
+            raise ValueError('Questions must be at least 2')
+        for question in v:
+            if len(question.answers) < 2:
+                raise ValueError('Answers must be at least 2')
+        return v
+
+class QuizzesListResponse(BaseModel):
+    quizzes: List[Quiz]
