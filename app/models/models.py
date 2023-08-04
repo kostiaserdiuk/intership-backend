@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, JSON
 from sqlalchemy.orm import relationship
 from app.db.db import Base
 
@@ -27,6 +27,7 @@ class Company(Base):
     action_invite = relationship("CompanyAction", back_populates="company")
     join_request = relationship("UserAction", back_populates="company")
     employees = relationship("Employees", back_populates="company")
+    quizzes = relationship("Quiz", back_populates="company")
 
 
 class CompanyAction(Base):
@@ -54,3 +55,13 @@ class Employees(Base):
     is_admin = Column(Boolean, default=False)
     user = relationship("User", back_populates="employees")
     company = relationship("Company", back_populates="employees")
+
+class Quiz(Base):
+    __tablename__ = 'quizzes'
+    id = Column(Integer, primary_key=True)
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    name = Column(String(50), unique=True)
+    description = Column(String(255))
+    frequency = Column(Integer)
+    questions = Column(JSON)
+    company = relationship("Company", back_populates="quizzes")
