@@ -91,3 +91,12 @@ class Quiz(BaseModel):
 
 class QuizzesListResponse(BaseModel):
     quizzes: List[Quiz]
+
+class QuizPassing(BaseModel):
+    answers: List[str]
+
+    @field_validator('answers')
+    def check_questions(cls, v):
+        if len(v) < 2:
+            raise ValueError('Answers must be at least 2')
+        return v

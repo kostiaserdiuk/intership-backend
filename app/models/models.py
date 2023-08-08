@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, JSON
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, JSON, TIMESTAMP, Float
 from sqlalchemy.orm import relationship
 from app.db.db import Base
 
@@ -14,6 +14,8 @@ class User(Base):
     actions = relationship("CompanyAction", back_populates="user")
     join_request = relationship("UserAction", back_populates="user")
     employees = relationship("Employees", back_populates="user")
+    results = relationship("Result", back_populates="user")
+    ratings = relationship("Rating", back_populates="user")
 
 
 class Company(Base):
@@ -28,6 +30,8 @@ class Company(Base):
     join_request = relationship("UserAction", back_populates="company")
     employees = relationship("Employees", back_populates="company")
     quizzes = relationship("Quiz", back_populates="company")
+    results = relationship("Result", back_populates="company")
+    ratings = relationship("Rating", back_populates="company")
 
 
 class CompanyAction(Base):
@@ -65,3 +69,29 @@ class Quiz(Base):
     frequency = Column(Integer)
     questions = Column(JSON)
     company = relationship("Company", back_populates="quizzes")
+    results = relationship("Result", back_populates="quiz")
+
+class Result(Base):
+    __tablename__ = 'results'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    quiz_id = Column(Integer, ForeignKey('quizzes.id'))
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    correct_answered = Column(Integer)
+    count_questions = Column(Integer)
+    time = Column(TIMESTAMP)
+    user = relationship("User", back_populates="results")
+    quiz = relationship("Quiz", back_populates="results")
+    company = relationship("Company", back_populates="results")
+
+class Rating(Base):
+    __tablename__ = 'ratings'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    scores = Column(Float)
+    correct_answered = Column(Integer)
+    total_questions = Column(Integer)
+    time = Column(TIMESTAMP)
+    user = relationship("User", back_populates="ratings")
+    company = relationship("Company", back_populates="ratings")

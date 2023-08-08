@@ -3,8 +3,8 @@ from fastapi import Depends
 from app.utils.dependencies import get_db_session
 from app.db.db import  AsyncSession, r
 from app.services.auth import get_current_user
-from app.services.quiz import QuizService
-from app.schemas.schemas import Quiz, QuizzesListResponse
+from app.services.quiz import QuizService, QuizPassage
+from app.schemas.schemas import Quiz, QuizzesListResponse, QuizPassing
 
 router = APIRouter(
     prefix="/quizzes",
@@ -24,5 +24,21 @@ async def delete_quiz(quiz_name: str, current_user: dict = Depends(get_current_u
     return await QuizService(session).delete_quiz(quiz_name=quiz_name, current_user=current_user.get("detail").id)
 
 @router.get("/company/{company_id}/list", response_model=QuizzesListResponse)
-async def list_quizzes(company_id: int, current_user: dict = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
-    return await QuizService(session).list_quizzes(company_id=company_id, current_user=current_user.get("detail").id)
+async def get_quizzes(company_id: int, current_user: dict = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
+    return await QuizService(session).get_quizzes(company_id=company_id, current_user=current_user.get("detail").id)
+
+@router.post("/passage/{company_id}/{quiz_name}")
+async def quiz_passage(quiz_passing: QuizPassing, 
+                        company_id: int,
+                        quiz_name: str, 
+                        current_user: dict = Depends(get_current_user), 
+                        session: AsyncSession = Depends(get_db_session)):
+    return await QuizPassage(session).quiz_passing(company_id=company_id, quiz_name=quiz_name, current_user=current_user.get("detail").id, quiz_passing=quiz_passing)
+
+@router.get("/company/{company_id}/statistic")
+async def get_statistics(company_id: int, current_user: dict = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
+    return await QuizService(session).get_statistic_by_company(company_id=company_id, current_user=current_user.get("detail").id)
+
+@router.get("/general/statistic")
+async def get_general_statistics(current_user: dict = Depends(get_current_user), session: AsyncSession = Depends(get_db_session)):
+    return await QuizService(session).get_general_statistic(current_user=current_user.get("detail").id)
