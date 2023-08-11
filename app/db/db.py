@@ -21,4 +21,4 @@ engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 async_session = sessionmaker(engine, expire_on_commit=False, autoflush=False, class_=AsyncSession)
 Base = declarative_base()
 
-r = aioredis.from_url(f"redis://intership-backend-redis-1", encoding="utf-8", decode_responses=True)
+r = aioredis.from_url(f"redis://redis", encoding="utf-8", decode_responses=True)

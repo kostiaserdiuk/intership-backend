@@ -1,4 +1,4 @@
-from app.db.db import AsyncSession
+from app.db.db import AsyncSession, r
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
@@ -8,6 +8,7 @@ from app.models.models import Quiz as QuizModel
 from app.models.models import Result, Rating
 from app.schemas.schemas import Quiz, QuizPassing
 from datetime import datetime
+from uuid import uuid4
 
 
 class QuizService:
@@ -26,7 +27,10 @@ class QuizService:
         if company.owner_id != current_user and user.is_admin == False:
             raise HTTPException(status_code=403, detail="You are not allowed to create quizzes")
         try:
-            new_quiz = QuizModel(name=quiz.name, description=quiz.description, company_id=company_id, frequency=quiz.frequency, questions=jsonable_encoder(quiz.questions))
+            json_questions = jsonable_encoder(quiz.questions)
+            for question in json_questions:
+                question['uuid'] = str(uuid4())
+            new_quiz = QuizModel(name=quiz.name, description=quiz.description, company_id=company_id, frequency=quiz.frequency, questions=json_questions)
             self.session.add(new_quiz)
             await self.session.commit()
             await self.session.refresh(new_quiz)
@@ -54,7 +58,10 @@ class QuizService:
             quiz_model.name = quiz.name
             quiz_model.description = quiz.description
             quiz_model.frequency = quiz.frequency
-            quiz_model.questions = jsonable_encoder(quiz.questions)
+            json_questions = jsonable_encoder(quiz.questions)
+            for question in json_questions:
+                question['uuid'] = str(uuid4())
+            quiz_model.questions = json_questions
             await self.session.commit()
             await self.session.refresh(quiz_model)
             return {"quiz": quiz_model}
@@ -150,6 +157,9 @@ class QuizPassage:
         self.session.add(result_model)
         await self.session.commit()
         await self.session.refresh(result_model)
+
+        for user_answer, correct_answer, question in zip(user_answers, correct_answers, questions):
+                await r.setex(name=f"{current_user}:{company_id}:{quiz_model.id}:{question.get('question')}:{question.get('uuid')}", value=repr((user_answer, user_answer == correct_answer)), time=48 * 3600)
         
         rating = await self.session.execute(select(Rating).filter(Rating.user_id == current_user, Rating.company_id == company_id))
         rating_model = rating.scalars().first()
