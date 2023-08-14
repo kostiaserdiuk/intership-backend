@@ -2,7 +2,11 @@ from app.db.db import AsyncSession, r
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
+from fastapi.responses import FileResponse, StreamingResponse
+import io
+import pandas as pd
 from fastapi.encoders import jsonable_encoder
+from app.models.models import User
 from app.models.models import Company, Employees
 from app.models.models import Quiz as QuizModel
 from app.models.models import Result, Rating
@@ -123,7 +127,55 @@ class QuizService:
         general_score = float(f"{all_correct_answers/all_questions:.2f}")
         return {"general_score": general_score}
         
-
+    async def user_export_results(self, current_user: int, export_model: str):
+        result = await self.session.execute(select(Rating).filter(Rating.user_id == current_user))
+        ratings = result.scalars().all()
+        if not ratings:
+            raise HTTPException(status_code=404, detail="You have not passed any quizzes")
+        user_data = [{key: eval(await r.get(key))} for key in await r.keys() if key.split(':')[0] == str(current_user)]
+        data_export = []
+        for data in user_data:
+            _, _, quiz_id, question, _ = list(data.keys())[0].split(':')
+            answer, is_correct = list(data.values())[0]
+            result = await self.session.execute(select(QuizModel).filter(QuizModel.id == int(quiz_id)))
+            quiz_name = result.scalars().first().name
+            data_export.append({"quiz name" : quiz_name, "question" : question, "answer": answer, "is_correct" : is_correct})
+        if export_model == "json":
+            return {"detail": "Your answers in the last 48 hours", "data": data_export} if len (data_export) > 0 else {"detail": "You have no answers in the last 48 hours"}
+        elif export_model == "csv":
+            df = pd.DataFrame(data=data_export)
+            stream = io.StringIO()
+            df.to_csv(stream, index=False)
+            return StreamingResponse(iter([stream.getvalue()]), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=results.csv"})
+    
+    async def admin_export_results(self, current_user: int, company_id: int, export_model: str):
+        result = await self.session.execute(select(Company).filter(Company.id == company_id))
+        company = result.scalars().first()
+        if not company:
+            raise HTTPException(status_code=404, detail="Company not found")
+        result = await self.session.execute(select(Employees).filter(Employees.company_id == company_id, Employees.user_id == current_user))
+        user = result.scalars().first()
+        if not user and company.owner_id != current_user:
+            raise HTTPException(status_code=404, detail="You are not an employee of this company")
+        if company.owner_id != current_user and user.is_admin == False:
+            raise HTTPException(status_code=403, detail="You are not allowed to export results quizzes")
+        users_data = [{key: eval(await r.get(key))} for key in await r.keys() if key.split(':')[1] == str(company_id)]
+        data_export = []
+        for data in users_data:
+            user_id, _, quiz_id, question, _ = list(data.keys())[0].split(':')
+            answer, is_correct = list(data.values())[0]
+            result = await self.session.execute(select(QuizModel).filter(QuizModel.id == int(quiz_id)))
+            quiz_name = result.scalars().first().name
+            result = await self.session.execute(select(User).filter(User.id == int(user_id)))
+            user_name = result.scalars().first().username
+            data_export.append({"user name": user_name, "quiz name" : quiz_name, "question" : question, "answer": answer, "is_correct" : is_correct})
+        if export_model == "json":
+            return {"detail": "Users answers in the last 48 hours", "data": data_export} if len (data_export) > 0 else {"detail": "Users have no answers in the last 48 hours"}
+        elif export_model == "csv":
+            df = pd.DataFrame(data=data_export)
+            stream = io.StringIO()
+            df.to_csv(stream, index=False)
+            return StreamingResponse(iter([stream.getvalue()]), media_type="multipart/form-data", headers={"Content-Disposition": "attachment; filename=results.csv"})
     
 class QuizPassage:
     def __init__(self, session: AsyncSession):
