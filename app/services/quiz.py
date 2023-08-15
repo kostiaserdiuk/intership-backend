@@ -2,7 +2,7 @@ from app.db.db import AsyncSession, r
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 import io
 import pandas as pd
 from fastapi.encoders import jsonable_encoder
