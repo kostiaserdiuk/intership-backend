@@ -100,3 +100,45 @@ class QuizPassing(BaseModel):
         if len(v) < 2:
             raise ValueError('Answers must be at least 2')
         return v
+
+class Score(BaseModel):
+    quiz_name: str
+    score: int
+    max_score: int
+    accuracy: str
+    time: str
+
+class ScoresListResponse(BaseModel):
+    scores: List[Score]
+
+class RatingShema(BaseModel):
+    user_email: str
+    company_id: int
+    avg_scores: float
+    correct_answered: int
+    total_answered: int
+
+class RatingList(BaseModel):
+    ratings: List[RatingShema]
+
+class PassedQuiz(BaseModel):
+    quiz_name: str
+    time: str
+
+class ScoreCompany(BaseModel):
+    user_email: str
+    quiz_name: str
+    accuracy: str
+    time: str
+
+class ScoresCompanyListResponse(BaseModel):
+    scores: List[ScoreCompany]
+
+class LastEmployeesPassage(BaseModel):
+    user_id: int
+    user_email: str
+    quiz_name: str
+    time: str
+
+class LastEmployeesPassageListResponse(BaseModel):
+    last_employees_passage: List[LastEmployeesPassage]
