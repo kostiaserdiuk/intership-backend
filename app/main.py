@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.utils.dependencies import get_db_session, close_db_session
 
-from .routers import users, auth, companies, quizzes
+from .routers import users, auth, companies, quizzes, analitics
 
 app = FastAPI()
 
@@ -27,3 +27,4 @@ app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(companies.router)
 app.include_router(quizzes.router)
+app.include_router(analitics.router)
