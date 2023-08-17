@@ -142,3 +142,10 @@ class LastEmployeesPassage(BaseModel):
 
 class LastEmployeesPassageListResponse(BaseModel):
     last_employees_passage: List[LastEmployeesPassage]
+
+class NotificationShema(BaseModel):
+    id: int
+    message: str
+
+class NotificationListResponse(BaseModel):
+    notifications: List[NotificationShema]

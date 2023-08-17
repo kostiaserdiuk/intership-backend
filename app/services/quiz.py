@@ -11,6 +11,8 @@ from app.models.models import Company, Employees
 from app.models.models import Quiz as QuizModel
 from app.models.models import Result, Rating
 from app.schemas.schemas import Quiz, QuizPassing
+from .notifications import NotificationService
+
 from datetime import datetime
 from uuid import uuid4
 
@@ -38,6 +40,8 @@ class QuizService:
             self.session.add(new_quiz)
             await self.session.commit()
             await self.session.refresh(new_quiz)
+            notification = NotificationService(self.session)
+            await notification.quiz_notification(quiz_name=quiz.name, company_id=company_id)
             return {"quiz": new_quiz}
         except IntegrityError:
             raise HTTPException(status_code=400, detail="Quiz already exists")
@@ -146,7 +150,7 @@ class QuizService:
             df = pd.DataFrame(data=data_export)
             stream = io.StringIO()
             df.to_csv(stream, index=False)
-            return StreamingResponse(iter([stream.getvalue()]), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=results.csv"})
+            return StreamingResponse(iter([stream.getvalue()]), media_type="multipart/form-data", headers={"Content-Disposition": "attachment; filename=results.csv"})
     
     async def admin_export_results(self, current_user: int, company_id: int, export_model: str):
         result = await self.session.execute(select(Company).filter(Company.id == company_id))
