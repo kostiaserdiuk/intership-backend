@@ -16,6 +16,7 @@ class User(Base):
     employees = relationship("Employees", back_populates="user")
     results = relationship("Result", back_populates="user")
     ratings = relationship("Rating", back_populates="user")
+    notifications = relationship("Notification", back_populates="user")
 
 
 class Company(Base):
@@ -95,3 +96,12 @@ class Rating(Base):
     time = Column(TIMESTAMP)
     user = relationship("User", back_populates="ratings")
     company = relationship("Company", back_populates="ratings")
+
+class Notification(Base):
+    __tablename__ = 'notifications'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    message = Column(String(255))
+    time = Column(TIMESTAMP)
+    is_read = Column(Boolean, default=False)
+    user = relationship("User", back_populates="notifications")

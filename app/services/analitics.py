@@ -2,9 +2,10 @@ from app.db.db import AsyncSession, r
 from sqlalchemy import select
 from app.models.models import Result, Rating, Quiz, User, Company, Employees
 from app.schemas.schemas import Score, RatingShema, PassedQuiz, ScoreCompany, LastEmployeesPassage
+from app.schemas.schemas import ScoresListResponse, RatingList, ScoresCompanyListResponse
 from fastapi import HTTPException
 
-class AnaliticService():
+class AnaliticService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -12,7 +13,7 @@ class AnaliticService():
         result = await self.session.execute(select(Rating).filter(Rating.user_id == user_id))
         rating = result.scalars().all()
         if not rating:
-            return {'detail': 'You have not passed any quizzes yet'}
+            raise HTTPException(status_code=200, detail="You have not passed any quizzes yet")
         user_rating = []
         for rate in rating:
             result = await self.session.execute(select(User).filter(User.id == user_id))
@@ -24,6 +25,8 @@ class AnaliticService():
     async def get_general_rating(self):
         result = await self.session.execute(select(Rating))
         rating = result.scalars().all()
+        if not rating:
+            raise HTTPException(status_code=200, detail="No one has taken any quizzes yet")
         general_rating = []
         for rate in rating:
             result = await self.session.execute(select(User).filter(User.id == rate.user_id))
@@ -35,7 +38,7 @@ class AnaliticService():
         result = await self.session.execute(select(Result).filter(Result.user_id == user_id))
         results = result.scalars().all()
         if not results:
-            return {'detail': 'You have not passed any quizzes yet'}
+            raise HTTPException(status_code=200, detail="You have not passed any quizzes yet")
         results = sorted(results, key=lambda x: x.time)
         scores = []
         for result in results:
@@ -51,7 +54,7 @@ class AnaliticService():
         result = await self.session.execute(select(Result).filter(Result.user_id == user_id))
         results = result.scalars().all()
         if not results:
-            return {'detail': 'You have not passed any quizzes yet'}
+            raise HTTPException(status_code=200, detail="You have not passed any quizzes yet")
         results = sorted(results, key=lambda x: x.time)
         passed_quizzes = []
         for result in results:
@@ -74,7 +77,7 @@ class AnaliticService():
         result = await self.session.execute(select(Result).filter(Result.company_id == company_id))
         results = result.scalars().all()
         if not results:
-            return {'detail': 'No one has taken any quizzes yet'}
+            raise HTTPException(status_code=200, detail="No one has taken any quizzes yet")
         results = sorted(results, key=lambda x: x.time)
         company_results_avg = []
         for rate in results:
@@ -102,7 +105,7 @@ class AnaliticService():
         result = await self.session.execute(select(Result).filter(Result.company_id == company_id, Result.user_id == user_id))
         results = result.scalars().all()
         if not results:
-            return {'detail': 'User has taken any quizzes yet'}
+            raise HTTPException(status_code=200, detail="User has taken any quizzes yet")
         user = await self.session.execute(select(User).filter(User.id == user_id))
         user_email = user.scalars().first().email
         results = sorted(results, key=lambda x: x.time)
@@ -130,7 +133,7 @@ class AnaliticService():
         result = await self.session.execute(select(Result).filter(Result.company_id == company_id))
         results = result.scalars().all()
         if not results:
-            return {'detail': 'No one has taken any quizzes yet'}
+            raise HTTPException(status_code=200, detail="No one has taken any quizzes yet")
         results = sorted(results, key=lambda x: x.time, reverse=True)
         last_employees_passage = []
         for res in results:
