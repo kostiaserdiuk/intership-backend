@@ -69,6 +69,7 @@ class Quiz(Base):
     description = Column(String(255))
     frequency = Column(Integer)
     questions = Column(JSON)
+    time_to_pass = Column(TIMESTAMP)
     company = relationship("Company", back_populates="quizzes")
     results = relationship("Result", back_populates="quiz")
 

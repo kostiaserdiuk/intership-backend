@@ -36,7 +36,7 @@ class QuizService:
             json_questions = jsonable_encoder(quiz.questions)
             for question in json_questions:
                 question['uuid'] = str(uuid4())
-            new_quiz = QuizModel(name=quiz.name, description=quiz.description, company_id=company_id, frequency=quiz.frequency, questions=json_questions)
+            new_quiz = QuizModel(name=quiz.name, description=quiz.description, company_id=company_id, frequency=quiz.frequency, questions=json_questions, time_to_pass=datetime.strptime(quiz.time_to_pass, "%Y-%m-%d %H:%M:%S.%f"))
             self.session.add(new_quiz)
             await self.session.commit()
             await self.session.refresh(new_quiz)
@@ -66,6 +66,7 @@ class QuizService:
             quiz_model.name = quiz.name
             quiz_model.description = quiz.description
             quiz_model.frequency = quiz.frequency
+            quiz_model.time_to_pass = datetime.strptime(quiz.time_to_pass, "%Y-%m-%d %H:%M:%S.%f")
             json_questions = jsonable_encoder(quiz.questions)
             for question in json_questions:
                 question['uuid'] = str(uuid4())
@@ -110,7 +111,7 @@ class QuizService:
             raise HTTPException(status_code=403, detail="You are not allowed to create quizzes")
         result = await self.session.execute(select(QuizModel).filter(QuizModel.company_id == company_id))
         quizzes = result.scalars().all()
-        quizzes = [Quiz(name=quiz.name, description=quiz.description, frequency=quiz.frequency, questions=quiz.questions) for quiz in quizzes]
+        quizzes = [Quiz(name=quiz.name, description=quiz.description, frequency=quiz.frequency, questions=quiz.questions, time_to_pass=datetime.strftime(quiz.time_to_pass, "%Y-%m-%d %H:%M:%S.%f")) for quiz in quizzes]
         return {"quizzes": quizzes}
     
     async def get_statistic_by_company(self, current_user: int, company_id: int):

@@ -1,7 +1,8 @@
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic import EmailStr
 from pydantic import field_validator
+from datetime import datetime
 
 class User(BaseModel):
     id: int
@@ -79,6 +80,7 @@ class Quiz(BaseModel):
     description: str
     frequency: int
     questions: List[Question]
+    time_to_pass: str = Field(default='2023-08-19 11:02:05.820')
 
     @field_validator('questions')
     def check_questions(cls, v):
