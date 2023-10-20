@@ -8,13 +8,15 @@ from sqlalchemy import select
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime
+from loguru import logger
+
 
 class SchedulerService:
     def __init__(self):
         scheduler = AsyncIOScheduler()
         scheduler.add_job(self.scheduler_notification, 'cron', hour='0', minute='0', day='*')
         scheduler.start()
-        print('scheduler started')
+        logger.info('Scheduler started')
 
     async def scheduler_notification(self):
         async with async_session() as self.session:

@@ -1,24 +1,25 @@
+from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from redis import asyncio as aioredis
 
-from dotenv import load_dotenv
-from os import getenv
+from app.core.config import (
+    POSTGRES_PORT,
+    POSTGRES_DB,
+    POSTGRES_USER,
+    POSTGRES_PASSWORD,
+    POSTGRES_HOST,
+    REDIS_HOST,
+    REDIS_PORT,
+)
 
-load_dotenv()
-
-user = getenv("POSTGRES_USER")
-password = getenv("POSTGRES_PASSWORD")
-db = getenv("POSTGRES_DB")
-postgres_host = getenv("POSTGRES_HOST")
-postgres_port = getenv("POSTGRES_PORT")
-
-
-DATABASE_URL = f"postgresql+asyncpg://{user}:{password}@postgres:{postgres_port}/{db}"
-
-engine = create_async_engine(DATABASE_URL, future=True, echo=True)
-async_session = sessionmaker(engine, expire_on_commit=False, autoflush=False, class_=AsyncSession)
+metadata = MetaData()
 Base = declarative_base()
 
-r = aioredis.from_url(f"redis://redis", encoding="utf-8", decode_responses=True)
+DATABASE_URL = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+
+engine = create_async_engine(DATABASE_URL, future=True, echo=True)
+async_session = sessionmaker(engine, expire_on_commit=False, autoflush=False, class_=AsyncSession) # noqa
+
+r = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}", encoding="utf-8", decode_responses=True)

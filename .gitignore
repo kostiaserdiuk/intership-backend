@@ -11,3 +11,4 @@
 /app/services/__pycache__/
 /app/routers/__pycache__/
 /.vscode/
+.idea/

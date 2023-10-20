@@ -8,14 +8,23 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
+from app.core import config as cfg
+from app.db.db import Base
+from app.models import *
+
 sys.path = ['', '..'] + sys.path[1:]
 
-from app.db.db import DATABASE_URL
-from app.core.base import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+section = config.config_ini_section
+config.set_section_option(section, "POSTGRES_USER", cfg.POSTGRES_USER)
+config.set_section_option(section, "POSTGRES_PASSWORD", cfg.POSTGRES_PASSWORD)
+config.set_section_option(section, "POSTGRES_DB", cfg.POSTGRES_DB)
+config.set_section_option(section, "POSTGRES_HOST", cfg.POSTGRES_HOST)
+config.set_section_option(section, "POSTGRES_PORT", cfg.POSTGRES_PORT)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -46,7 +55,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option(DATABASE_URL)
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -71,7 +80,6 @@ async def run_async_migrations() -> None:
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration['sqlalchemy.url'] = DATABASE_URL
     connectable = async_engine_from_config(
         # config.get_section(config.config_ini_section, {}),
         configuration=configuration,

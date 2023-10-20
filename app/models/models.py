@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, JSON, TIMESTAMP, Float
 from sqlalchemy.orm import relationship
+
 from app.db.db import Base
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -44,6 +46,7 @@ class CompanyAction(Base):
     company = relationship("Company", back_populates="action_invite")
     user = relationship("User", back_populates="actions")
 
+
 class UserAction(Base):
     __tablename__ = 'user_actions'
     id = Column(Integer, primary_key=True)
@@ -51,6 +54,7 @@ class UserAction(Base):
     join_request = Column(Integer, ForeignKey('companies.id'))
     user = relationship("User", back_populates="join_request")
     company = relationship("Company", back_populates="join_request")
+
 
 class Employees(Base):
     __tablename__ = 'employees'
@@ -60,6 +64,7 @@ class Employees(Base):
     is_admin = Column(Boolean, default=False)
     user = relationship("User", back_populates="employees")
     company = relationship("Company", back_populates="employees")
+
 
 class Quiz(Base):
     __tablename__ = 'quizzes'
@@ -86,6 +91,7 @@ class Result(Base):
     quiz = relationship("Quiz", back_populates="results")
     company = relationship("Company", back_populates="results")
 
+
 class Rating(Base):
     __tablename__ = 'ratings'
     id = Column(Integer, primary_key=True)
@@ -97,6 +103,7 @@ class Rating(Base):
     time = Column(TIMESTAMP)
     user = relationship("User", back_populates="ratings")
     company = relationship("Company", back_populates="ratings")
+
 
 class Notification(Base):
     __tablename__ = 'notifications'
