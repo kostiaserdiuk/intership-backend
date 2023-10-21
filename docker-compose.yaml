@@ -16,7 +16,7 @@ services:
 #      - ./app:/intership-backend/app
   postgres:
       image: postgres
-      restart: always
+      restart: no
       ports:
         - 5432:5432
       env_file:
@@ -24,7 +24,7 @@ services:
       container_name: postgres
   redis:
       image: redis/redis-stack
-      restart: always
+      restart: no
       ports:
         - 6379:6379
       env_file:

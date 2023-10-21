@@ -3,6 +3,11 @@
 cd app
 
 uvicorn main:app --reload 
+
+or
+
+uvicorn app.main:app  --host 0.0.0.0 --port 8080 --no-use-colors
+
 ```
 
 # Start Docker (useless)

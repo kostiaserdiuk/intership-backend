@@ -2,6 +2,7 @@ import os
 import jwt
 from dotenv import load_dotenv
 
+
 def set_up():
     load_dotenv()
     config = {
@@ -12,7 +13,8 @@ def set_up():
     }
     return config
 
-class VerifyToken():
+
+class VerifyToken:
     def __init__(self, token, permissions=None, scopes=None):
         self.token = token
         self.permissions = permissions
@@ -24,15 +26,13 @@ class VerifyToken():
 
     def verify(self):
         try:
-            self.signing_key = self.jwks_client.get_signing_key_from_jwt(
-                self.token
-            ).key
+            self.signing_key = self.jwks_client.get_signing_key_from_jwt(self.token).key
         except jwt.exceptions.PyJWKClientError as error:
             return {"status": "error", "msg": error.__str__()}
         except jwt.exceptions.DecodeError as error:
             return {"status": "error", "msg": error.__str__()}
 
-        try: 
+        try:
             payload = jwt.decode(
                 self.token,
                 self.signing_key,
@@ -44,12 +44,12 @@ class VerifyToken():
             return {"status": "error", "message": str(e)}
 
         if self.scopes:
-            result = self._check_claims(payload, 'scope', str, self.scopes.split(' '))
+            result = self._check_claims(payload, "scope", str, self.scopes.split(" "))
             if result.get("error"):
                 return result
 
         if self.permissions:
-            result = self._check_claims(payload, 'permissions', list, self.permissions)
+            result = self._check_claims(payload, "permissions", list, self.permissions)
             if result.get("error"):
                 return result
 

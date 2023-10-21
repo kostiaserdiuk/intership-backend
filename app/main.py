@@ -8,22 +8,22 @@ from .routers import users, auth, companies, quizzes, analitics, notifications
 
 app = FastAPI()
 
+
 @app.on_event("startup")
 async def connect_db():
     get_db_session()
     SchedulerService()
 
+
 @app.on_event("shutdown")
 async def disconnect_db():
     await close_db_session()
 
+
 @app.get("/")
 async def health_check():
-    return {
-        "status_code": 200,
-        "detail": "ok",
-        "result": "working"
-    }
+    return {"status_code": 200, "detail": "ok", "result": "working"}
+
 
 app.include_router(users.router)
 app.include_router(auth.router)
